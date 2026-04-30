@@ -7,8 +7,9 @@ class QuizApp:
     def __init__(self, root):
         self.root = root
         self.root.title("单词测验系统")
-        self.root.geometry("400x300")
-        self.root.resizable(False, False)
+        self.root.geometry("500x350")
+        self.root.resizable(True, True)
+        self.root.minsize(450, 320)
 
         self.quiz_engine = QuizEngine()
         self.quiz_engine.start_new_quiz()
@@ -17,23 +18,29 @@ class QuizApp:
         self.next_word()
 
     def create_widgets(self):
+        self.root.columnconfigure(0, weight=1)
+        self.root.rowconfigure(0, weight=1)
+
+        self.main_frame = tk.Frame(self.root)
+        self.main_frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
+
         self.title_label = tk.Label(
-            self.root,
+            self.main_frame,
             text="单词测验系统",
             font=("Arial", 18, "bold")
         )
-        self.title_label.pack(pady=20)
+        self.title_label.pack(pady=(0, 15))
 
         self.english_label = tk.Label(
-            self.root,
+            self.main_frame,
             text="",
             font=("Arial", 24, "bold"),
             fg="blue"
         )
-        self.english_label.pack(pady=20)
+        self.english_label.pack(pady=(0, 15))
 
-        self.input_frame = tk.Frame(self.root)
-        self.input_frame.pack(pady=10)
+        self.input_frame = tk.Frame(self.main_frame)
+        self.input_frame.pack(pady=(0, 15))
 
         self.input_label = tk.Label(
             self.input_frame,
@@ -50,8 +57,8 @@ class QuizApp:
         self.answer_entry.pack(side=tk.LEFT, padx=5)
         self.answer_entry.bind("<Return>", lambda event: self.check_answer())
 
-        self.button_frame = tk.Frame(self.root)
-        self.button_frame.pack(pady=20)
+        self.button_frame = tk.Frame(self.main_frame)
+        self.button_frame.pack(pady=(0, 15))
 
         self.submit_button = tk.Button(
             self.button_frame,
@@ -75,13 +82,18 @@ class QuizApp:
         )
         self.next_button.pack(side=tk.LEFT, padx=10)
 
+        self.result_frame = tk.Frame(self.main_frame)
+        self.result_frame.pack(fill=tk.X, expand=True)
+
         self.result_label = tk.Label(
-            self.root,
+            self.result_frame,
             text="",
             font=("Arial", 14),
-            fg="green"
+            fg="green",
+            wraplength=400,
+            justify="center"
         )
-        self.result_label.pack(pady=10)
+        self.result_label.pack(pady=10, fill=tk.X, expand=True)
 
     def next_word(self):
         result: QuestionResult = self.quiz_engine.next_question()
