@@ -14,6 +14,9 @@ class QuizApp:
         self.quiz_engine = QuizEngine()
         self.quiz_engine.start_new_quiz()
 
+        self._answer_submitted = False
+        self._next_button_clickable = True
+
         self.create_widgets()
         self.next_word()
 
@@ -95,24 +98,44 @@ class QuizApp:
         )
         self.result_label.pack(pady=10, fill=tk.X, expand=True)
 
+    def _enable_next_button(self):
+        self._next_button_clickable = True
+
     def next_word(self):
+        if not self._next_button_clickable:
+            return
+
+        self._next_button_clickable = False
+        self.root.after(500, self._enable_next_button)
+
         result: QuestionResult = self.quiz_engine.next_question()
 
         if result.has_question:
+            self._answer_submitted = False
             self.english_label.config(text=result.english_word)
             self.answer_entry.delete(0, tk.END)
+            self.answer_entry.config(state=tk.NORMAL)
+            self.submit_button.config(state=tk.NORMAL)
             self.result_label.config(text="", fg="black")
             self.answer_entry.focus_set()
         else:
             messagebox.showerror("错误", result.message)
 
     def check_answer(self):
+        if self._answer_submitted:
+            messagebox.showinfo("提示", "您已经提交过答案，请点击'下一个'继续答题")
+            return
+
         user_answer = self.answer_entry.get()
         result: AnswerResult = self.quiz_engine.submit_answer(user_answer)
 
         if result.is_empty:
             messagebox.showwarning("提示", "请输入答案")
             return
+
+        self._answer_submitted = True
+        self.submit_button.config(state=tk.DISABLED)
+        self.answer_entry.config(state=tk.DISABLED)
 
         if result.is_correct:
             self.result_label.config(text="✅ 回答正确！", fg="green")
